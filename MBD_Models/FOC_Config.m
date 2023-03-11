@@ -4,10 +4,10 @@ clear;clc;
 load('struct_FOC_Crtl.mat');
 
 %% Model parameters
-Ts = 0.0001;
-Tctr = 0.0000625;
+Ts = 0.00005;
+Tctr = 0.00005;
 Ts_PIL = 0.0000125;
-Fpwm = 16000;
+Fpwm = 20000;
 Ts_simscape = 1/40000000;
 
 %% Motor parameters
@@ -60,7 +60,7 @@ outerPI.Spd.Continuous.Kp = (2*outerPI.Spd.ksi*outerPI.Spd.w0*motor.J - motor.B)
 outerPI.Spd.Continuous.Ki = outerPI.Spd.w0^2*motor.J/motor.Kt;
 outerPI.Spd.Continuous.Kzc = outerPI.Spd.Continuous.Kp/outerPI.Spd.Continuous.Ki;
 
-outerPI.Spd.Discrete.Kp = 0.07;
-outerPI.Spd.Discrete.Ki = 0.32;
+outerPI.Spd.Discrete.Kp = 0.14;
+outerPI.Spd.Discrete.Ki = 0.64;
 outerPI.Spd.Discrete.KiTctr = outerPI.Spd.Discrete.Ki*Tctr;
 
