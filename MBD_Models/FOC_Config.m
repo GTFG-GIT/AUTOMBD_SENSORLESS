@@ -5,7 +5,7 @@ load('struct_FOC_Crtl.mat');
 
 %% Model parameters
 Ts = 0.00005;
-Tctr = 0.00005;
+Tctr = Ts;
 Ts_PIL = 0.0000125;
 Fpwm = 20000;
 Ts_simscape = 1/40000000;
@@ -24,6 +24,10 @@ motor.Tf = 0;                       % [N.m]
 motor.Kt = 1.5*motor.Flux*motor.Prs;                      % Torque constant [N.m/A]
 motor.Ke = sqrt(3)*1000*motor.Prs*2*pi/60*motor.Flux;     % Back-emf [V/krpm]
 
+%% Inverter Params
+pu.IScale = 31.25;
+pu.UScale = 12;
+pu.BaseFrq = 100;
 %% Current Controller
 % D axis PI design
 innerPI.iD.f0 = 200;
@@ -34,8 +38,8 @@ innerPI.iD.Continuous.Kp = 2*innerPI.iD.ksi*innerPI.iD.w0*motor.Ld - motor.Rs;
 innerPI.iD.Continuous.Ki = innerPI.iD.w0^2*motor.Ld;
 innerPI.iD.Continuous.Kzc = innerPI.iD.Continuous.Kp/innerPI.iD.Continuous.Ki;
 
-innerPI.iD.Discrete.Kp = 10;
-innerPI.iD.Discrete.Ki = 480;
+innerPI.iD.Discrete.Kp = (0.25*motor.Ld*pu.IScale)/(Tctr*pu.UScale);
+innerPI.iD.Discrete.Ki = Tctr*motor.Rs/motor.Ld;
 innerPI.iD.Discrete.KiTctr = innerPI.iD.Discrete.Ki*Tctr;
 
 % Q axis PI design
@@ -47,8 +51,8 @@ innerPI.iQ.Continuous.Kp = 2*innerPI.iQ.ksi*innerPI.iQ.w0*motor.Lq - motor.Rs;
 innerPI.iQ.Continuous.Ki = innerPI.iQ.w0^2*motor.Lq;
 innerPI.iQ.Continuous.Kzc = innerPI.iQ.Continuous.Kp/innerPI.iQ.Continuous.Ki;
 
-innerPI.iQ.Discrete.Kp = 10;
-innerPI.iQ.Discrete.Ki = 640;
+innerPI.iQ.Discrete.Kp = (0.25*motor.Lq*pu.IScale)/(Tctr*pu.UScale);;
+innerPI.iQ.Discrete.Ki = Tctr*motor.Rs/motor.Lq;
 innerPI.iQ.Discrete.KiTctr = innerPI.iQ.Discrete.Ki*Tctr;
 
 %% Speed Controller
@@ -60,7 +64,7 @@ outerPI.Spd.Continuous.Kp = (2*outerPI.Spd.ksi*outerPI.Spd.w0*motor.J - motor.B)
 outerPI.Spd.Continuous.Ki = outerPI.Spd.w0^2*motor.J/motor.Kt;
 outerPI.Spd.Continuous.Kzc = outerPI.Spd.Continuous.Kp/outerPI.Spd.Continuous.Ki;
 
-outerPI.Spd.Discrete.Kp = 0.14;
-outerPI.Spd.Discrete.Ki = 0.64;
+outerPI.Spd.Discrete.Kp = 0.54;
+outerPI.Spd.Discrete.Ki = 0.0064;
 outerPI.Spd.Discrete.KiTctr = outerPI.Spd.Discrete.Ki*Tctr;
 
